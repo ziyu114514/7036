@@ -1,95 +1,221 @@
-NLP Rating Score 量化策略（Quarterly Rebalance Strategy）
-本项目构建了一个从研报文本 → NLP Rating Score → 因子矩阵 → 季度调仓回测 的完整量化研究流程。 目标是验证 NLP 研报情绪评分在 A 股市场的有效性，并搭建一个可扩展的研究框架。
-1. 研报下载与文本处理
-自动从东方财富下载研报 PDF
+# NLP-Based Stock Strategy from Research Reports
 
-批量转换为 TXT
+## Project Overview
 
-清洗文本、去除噪声、统一编码
+This project builds a **complete quantitative research pipeline** that extracts investment signals from **sell-side research reports** using NLP techniques. It automates the entire workflow from **data acquisition → text cleaning → NLP modeling → factor construction → portfolio construct → backtesting**, enabling systematic evaluation of how research report sentiment, tone, and content relate to stock performance.
 
-生成 NLP 模型可用的输入格式
+The goal is to transform unstructured financial research reports into **actionable alpha factors** for quantitative investment strategies.
 
-研报处理流程
+## Key Features
 
-2. NLP Rating Score 因子构建
-使用 NLP 模型对研报文本进行情绪评分
+- 📥 **Automated Data Collection**  
+  Downloads research reports (PDF/HTML) from Eastmoney with metadata, page filtering, and retry logic.
 
-输出范围：-2（强烈看空）到 +2（强烈看多）
+- 🧹 **High-Precision Text Cleaning Pipeline**  
+  Multi-stage blank-aware, table-aware, and LLM-based semantic filtering.
 
-构建季度 × 股票的因子矩阵
+- 🧠 **NLP Modeling for Investment Signals**  
+  Extracts sentiment, forward-looking tone, risk disclosures, and topic distributions.
 
-支持：
+- 📈 **Alpha Factor Construction**  
+  Converts NLP outputs into quantitative factors (sentiment factor, novelty factor, topic factor, etc.).
 
-横截面标准化
+- 🔄 **Backtesting Framework**  
+  Evaluates factor performance using standard quant metrics (IC, IR, long-short returns).
 
-行业中性化
+- 🧪 **Reproducible Research Workflow**  
+  All intermediate data is saved for debugging, auditing, and future analysis.
 
-缺失值填补
+## System Architecture
+```
+┌──────────────────────────┐
+│  Project   Work   Flow   │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 1.Data Acquisition       │
+│ - API crawling           │
+│ - Page filtering         │
+│ - Metadata extraction    │
+│ - Trade data acquisition │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 2.Chinese Text Cleaning  │
+│ - PDF OCR layout analysis│
+│ - Line-wise Text detect  │
+| - Blank-aware filtering  │
+│ - Table-aware filtering  │
+│ - RE filtering           │
+│ - LLM semantic filtering │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 3.Ch-En Text Translation │
+│ - Sentence level  merge  │
+│ - Paragraph level merge  │
+| - LLM Ch to En translate │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 4.English Text Cleaning  │
+│ - RE filtering           │
+│ - Paragraph level merge  │
+| - LLM semantic filtering │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 5.Data Transformation    │
+│ - (Optional)             │
+│ - Word level tokenization│
+| - Quarterly data reform  │
+| - Monthly data reform    │
+| - Handle missing data    │
+│ - Assign weight by depth │
+│ report or not            │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 6.Data Merge             │
+│ - Chronologically reform │
+│ trading data             │
+│ - Match corresponding    │
+│ text data                │
+| - Handle unmatched data  │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 7.Data Analysis          │
+│ (With pretrained model)  │
+│ - Sentiment analysis     │
+│ - Topic modeling (LDA)   │
+│ - Forward-looking tone   │
+│ - Risk disclosure scoring│
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 8.Data Analysis          │
+│(Fine tune pretrain model)│
+│ - Tagging label using    │
+│ report conclusion eg.    │
+│`Buy` or `Sell`           │
+│ - Tagging label using    │
+│ trading data eg. `Return`│
+│ - Fine tune model based  │
+│ on labels                │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 9.Data Analysis          │
+│(Train model from scratch)│
+│ - Small semantic model   │
+│ - LLM such as Transformer│
+│ LSTM, RNN, etc.          │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 10.Factor Construction   │
+│ - Sentiment factor       │
+│ - Novelty factor         │
+│ - Topic factor           │
+│ - Report intensity factor│
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 11.Portfolio Construction│
+│ - Factor Weighted        │
+│ sole Long and Long-short │
+│ Portfolio                │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 12.Backtesting Framework │
+│ - IC/IR evaluation       │
+│ - Benchmark Compare      │
+│ - Factor Combination     │
+└─────────────┬────────────┘
+              ▼
+┌──────────────────────────┐
+│ 13.Result Visualization  │
+│ - Project Report         │
+│ - Diagram Making         │
+│ - Interactive Webpage    │
+└──────────────────────────┘
+```
+## Usage
+- 1. **Download Research Reports**
+```bash
+python download_reports.py
+```
+- 2. **Clean and Structure Text**
+```bash
+python clean_text.py
+```
+- 3. **Run NLP Models**
+```bash
+python run_nlp.py
+```
+- 4. **Generate Factors**
+```bash
+python generate_factors.py
+```
+- 5. **Backtest Strategy**
+```bash
+python backtest.py
+```
+## File Structure
+```
+project_root/
+├── reports_pdf/
+│   ├── StockName1/
+│   │   ├── DepthReport/
+│   │   └── Report.pdf
+│   └── StockName2/
+├── clean_txt/
+│   ├── StockName1/
+│   │   ├── DepthReport/
+│   │   └── Report.txt
+│   └── StockName2/
+├── nlp_outputs/
+│   ├── sentiment/
+│   ├── topics/
+│   └── risk_scores/
+├── factors/
+│   ├── sentiment_factor.csv
+│   ├── topic_factor.csv
+│   └── novelty_factor.csv
+├── backtest_results/
+│   ├── ic_analysis.png
+│   ├── long_short_curve.png
+│   └── summary.csv
+└── config.json
+```
+## NLP Modeling Details
+- 1. **Sentiment Analysis**
+Fine-tuned financial sentiment classifier
+Outputs: [-1, 0, 1] or continuous score
+- 2. **Topic Modeling (LDA / BERT)**
+Identifies themes such as:
+Company fundamentals
+Industry outlook
+Risk warnings
+Policy impact
+- 3. **Forward-Looking Tone**
+Measures how much the report discusses future expectations.
+- 4. **Risk Disclosure Scoring**
+Counts and weights risk-related sentences.
 
-3. 数据加载与行情清洗
-自动识别混合日期格式（如 20251204.0）
+## Factor Construction
+- `Sentiment Factor`:	Average sentiment score of the report
+- `Novelty Factor` :	Measures new information vs. previous reports
+- `Topic Factor` :	Topic distribution mapped to returns
+- `Report Intensity Factor`: Number of reports / length / density
 
-统一转换为 %Y%m%d
+## Changelog
+- v1.0.0: Basic pipeline (download → pdf text extract and trading data acquire → data merge → NLP(key word match) → long-short portfolio → back test)
+- v1.1.0: Tested Chinese to English translation basic feature on several files, pipeline not implement yet.
+- v1.2.0: Rewrite pdf to txt pipeline using OCR, implement layout analysis, blank-aware, table-aware and RE text cleaning for Chinese version report. Formed pdf to txt convert pipeline.
+- v1.3.0: Implement Embedding NLP model for high-level txt noise clean. Tested on several files, pipeline not implement yet.
 
-生成季度字段
-清洗异常值、停牌数据
-
-行情数据清洗逻辑
-
-4. 季度调仓回测框架
-自动识别季度首日调仓
-
-合并因子与行情数据
-
-计算个股收益
-
-组合构建方式：
-
-long-only
-
-long-short
-
-输出：
-
-季度收益序列
-
-累计收益
-
-年化收益、波动率、夏普比率
-
-超额收益（相对沪深300）
-
-回测框架设计
-
-5. 沪深300基准表现
-计算基准指数的：
-
-年化收益
-
-年化波动率
-
-夏普比率
-
-年度收益
-
-用于对比策略表现
-
-基准计算方法
-📊 当前进展
-研报下载与文本处理已完成
-
-NLP Rating Score 因子已构建
-
-季度调仓回测框架已跑通
-
-沪深300基准指标已计算
-
-🛠️ 下一步计划
-
-使用现有模型重新计算df_score
-
-使用现有bert模型计算df_score
-
-使用股票回报做label微调bert模型
-
-训练自己模型
+### What's next?
+Implement Chinese text NLP cleaning, Chinese to English txt
