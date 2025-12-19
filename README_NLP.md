@@ -27,7 +27,7 @@ The goal is to transform unstructured financial research reports into **actionab
   All intermediate data is saved for debugging, auditing, and future analysis.
 
 ---
-
+<!-- 
 ## System Architecture
 
 ┌──────────────────────────┐
@@ -138,7 +138,126 @@ The goal is to transform unstructured financial research reports into **actionab
 │ - Project Report         │
 │ - Diagram Making         │
 │ - Interactive Webpage    │
-└──────────────────────────┘
+└──────────────────────────┘ -->
+## System Architecture
+
++---------------------------+
+|     Project Work Flow     |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 1. Data Acquisition       |
+| - API crawling            |
+| - Page filtering          |
+| - Metadata extraction     |
+| - Trade data acquisition  |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 2. Chinese Text Cleaning  |
+| - PDF OCR layout analysis |
+| - Line-wise Text detect   |
+| - Blank-aware filtering   |
+| - Table-aware filtering   |
+| - RE filtering            |
+| - LLM semantic filtering  |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 3. Ch-En Translation      |
+| - Sentence merge          |
+| - Paragraph merge         |
+| - LLM translation         |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 4. English Text Cleaning  |
+| - RE filtering            |
+| - Paragraph merge         |
+| - LLM semantic filtering  |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 5. Data Transformation    |
+| - Tokenization            |
+| - Quarterly/monthly reform|
+| - Handle missing data     |
+| - Assign weight by depth  |
+| - Report or not           |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 6. Data Merge             |
+| - Chronological merge     |
+| - Match text/trade data   |
+| - Handle unmatched data   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 7. Data Analysis          |
+| (Pretrained model)        |
+| - Sentiment analysis      |
+| - Topic modeling (LDA)    |
+| - Forward-looking tone    |
+| - Risk disclosure scoring |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 8. Data Analysis          |
+| (Fine-tune model)         |
+| - Tag labels (Buy/Sell)   |
+| - Tag labels (Return)     |
+| - Fine-tune with labels   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 9. Data Analysis          |
+| (Train from scratch)      |
+| - Small semantic model    |
+| - Transformer/LSTM/RNN    |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 10. Factor Construction   |
+| - Sentiment factor        |
+| - Novelty factor          |
+| - Topic factor            |
+| - Intensity factor        |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 11. Portfolio Construction|
+| - Factor weighted         |
+| - Long/short portfolio    |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 12. Backtesting Framework |
+| - IC/IR evaluation        |
+| - Benchmark comparison    |
+| - Factor combination      |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| 13. Result Visualization  |
+| - Project report          |
+| - Diagram making          |
+| - Interactive webpage     |
++---------------------------+
+
 
 ## Usage
 - 1. **Download Research Reports**
@@ -171,7 +290,7 @@ project_root/
 ├── clean_txt/
 │   ├── StockName1/
 │   │   ├── DepthReport/
-│   │   └── Report.pdf
+│   │   └── Report.txt
 │   └── StockName2/
 ├── nlp_outputs/
 │   ├── sentiment/
@@ -186,6 +305,7 @@ project_root/
 │   ├── long_short_curve.png
 │   └── summary.csv
 └── config.json
+
 
 ## NLP Modeling Details
 - 1. **Sentiment Analysis**
