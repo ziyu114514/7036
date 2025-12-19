@@ -1,21 +1,20 @@
-# 东方财富研报下载器
+# Eastmoney Research Report Downloader
 
-## 项目简介
+## Project Overview
+This is a Python tool designed to automatically download research report PDFs from Eastmoney. Its main function is to batch‑download research reports for a specified stock, with support for intelligent classification, page‑count validation, and retry mechanisms.
 
-这是一个用于自动下载东方财富网研究报告的Python工具。主要功能是批量下载指定股票的研究报告PDF文件，支持智能分类、页数验证和重试机制。
+## Key Features
+- 🔍 **Smart Filtering:** Only downloads research reports with page counts exceeding a specified threshold
+- 📁 **Automatic Categorization:** Creates separate directories for each stock code, with deep‑dive reports stored separately
+- ✅ **Integrity Verification:** Automatically checks PDF page count after download to ensure completeness
+- 🔄 **Retry Mechanism:** Automatically retries failed downloads up to 3 times
+- 📅 **Time Range:** Supports custom query time ranges
+- 🎯 **Smart Naming:** Automatically generates meaningful filenames based on report metadata
 
-## 主要功能
 
-- 🔍 **智能筛选**：只下载页数超过设定阈值的研究报告
-- 📁 **自动分类**：按股票代码创建独立目录，深度报告单独存放
-- ✅ **完整性验证**：下载后自动验证PDF页数，确保文件完整
-- 🔄 **重试机制**：下载失败时自动重试，最多3次
-- 📅 **时间范围**：支持自定义查询时间范围
-- 🎯 **智能命名**：根据报告信息自动生成有意义的文件名
+## Configuration File Description
 
-## 配置文件说明
-
-项目使用 `config.json` 配置文件，支持以下参数：
+The project uses a config.json configuration file with the following parameters:
 
 ```json
 {
@@ -26,46 +25,44 @@
 }
 ```
 
-### 配置参数详解
+### Configuration Parameter Details
 
-| 参数 | 类型 | 默认值 | 说明 |
+| Parameter	| Type | Default | Description |
 |------|------|--------|------|
-| `stock_code` | string | "600519" | 股票代码，如贵州茅台为600519 |
-| `min_pages` | int | 20 | 最小页数阈值，只下载超过此页数的报告 |
-| `download_dir` | string | "reports_pdf" | 下载目录名称 |
-| `years_ago` | int | 2 | 查询多少年以前的报告 |
+| `stock_code` |	string | "600519" |	Stock code, e.g., 600519 for Kweichow Moutai |
+| `min_pages`	| int	| 20 | Minimum page threshold; only reports exceeding this value are downloaded |
+| `download_dir`	| string | "reports_pdf" |	Directory name for downloaded files |
+| `years_ago`	| int	| 2	| How many years back to query reports |
 
-## 安装依赖
+## Install Dependency
 
 ```bash
 pip install requests pycurl PyPDF2
 ```
 
-### 依赖说明
+### Dependency Description
+- `requests`: HTTP request library
+- `pycurl`: High‑performance download library
+- `PyPDF2`: PDF file processing library
 
-- `requests`: HTTP请求库
-- `pycurl`: 高性能下载库
-- `PyPDF2`: PDF文件处理库
 
-## 使用方法
-
-1. **配置参数**：编辑 `config.json` 文件，设置目标股票代码和其他参数
-2. **运行程序**：执行以下命令开始下载
+### Usage
+1. **Configure Parameters:** Edit the `config.json` file to set the target stock code and other parameters
+2. **Run the Program:** Execute the following command to start downloading
 
 ```bash
 python main.py
 ```
 
-## 文件结构
-
-下载完成后，文件结构如下：
+## File Structure
+After downloading, the file structure looks like this:
 
 ```
 reports_pdf/
-├── 贵州茅台/
-│   ├── 20240526_第一上海证券_贵州茅台2024年股东大会点评：韧性生长，价值升维.pdf
-│   ├── 深度报告/
-│   │   └── 20240526_中信证券_贵州茅台深度分析报告.pdf
+├── STOCKNAME/
+│   ├── 20240526_BROKERNAME_REPORTTITLE.pdf
+│   ├── DEPTHREPORT/
+│   │   └── 20240526_BROKERNAME_REPORTTITLE.pdf
 │   └── ...
 ├── raw_data/
 │   ├── page_1_600519_2022-06-24_2024-06-24.json
@@ -79,65 +76,51 @@ reports_pdf/
     └── ...
 ```
 
-## 原始数据保存
+## Raw Data Storage
+The program automatically saves the following raw data for debugging and later analysis:
 
-程序会自动保存以下原始数据，便于调试和后续分析：
+### List Page Data (`raw_data/`)
+- **Filename Format:** `page_{page}_{stock_code}_{start_date}_{end_date}.json`
+- **Content:** Full API response of the research report list
+- **Purpose:** Data backup, resume capability, offline analysis
 
-### 列表页数据 (`raw_data/`)
-- **文件格式**：`page_{页码}_{股票代码}_{开始日期}_{结束日期}.json`
-- **内容**：API返回的完整研报列表数据
-- **用途**：数据备份、断点续传、离线分析
+### Detail Page Data (`detail_data/`)
+- **HTML Files:** `detail_{reportID}.html`
+- Full HTML source of the detail page
+- Useful for debugging page structure issues
 
-### 详情页数据 (`detail_data/`)
-- **HTML文件**：`detail_{报告ID}.html`
-  - 完整的详情页HTML源码
-  - 便于调试页面结构问题
-- **JSON文件**：`zwinfo_{报告ID}.json`
-  - 解析后的zwinfo数据
-  - 包含PDF下载链接和命名信息
-  - 便于验证文件命名和下载链接
+- **JSON Files:** `zwinfo_{reportID}.json`
+- Parsed zwinfo data
+- Contains PDF download link and naming information
+- Useful for verifying filenames and download URLs
 
-### 数据保存优势
-- **完整性**：保存了从列表到详情到PDF的完整数据链路
-- **调试便利**：出现问题时可以查看原始数据排查原因
-- **避免重复请求**：提高程序运行效率
-- **后续分析**：可以基于保存的数据进行更深入的分析
 
-## 功能特性
+### Advantages of Data Storage
+- **Completeness:** Preserves the full data pipeline from list to detail to PDF
+- **Debugging Convenience:** Helps diagnose issues by reviewing raw data
+- **Avoids Duplicate Requests:** Improves program efficiency
+- **Further Analysis:** Enables deeper analysis based on saved data
 
-### 智能命名规则
+## Feature Details
+### Smart Naming Rules
+PDF filename format: `Date_Organization_StockName_ReportTitle.pdf`
 
-PDF文件名格式：`日期_机构名_股票名_报告标题.pdf`
+- Automatically removes redundant information
+- Replaces special characters with underscores
+- Sorted chronologically
 
-- 自动去除重复信息
-- 替换特殊字符为下划线
-- 按时间顺序排列
+### Deep Report Classification
+- Reports exceeding the page threshold are automatically moved to the “Deep Reports” subdirectory
+- Helps distinguish regular reports from in‑depth analyses
 
-### 深度报告分类
+### Download Verification
+- Automatically checks PDF page count after download
+- Retries download if page count mismatches
+- Up to 3 retries to ensure file integrity
 
-- 页数超过设定阈值的报告自动移动到"深度报告"子目录
-- 便于区分普通报告和深度分析报告
+## Notes
+- **Network Environment:** Ensure a stable network connection
+- **Storage Space:** PDF files may take significant space; ensure sufficient disk capacity
+- **Access Frequency:** Built‑in delay mechanism prevents excessive server load
+- **File Permissions:** Ensure the program has permission to create directories and files
 
-### 下载验证
-
-- 下载完成后自动验证PDF页数
-- 页数不符时自动重试下载
-- 最多重试3次，确保文件完整性
-
-## 注意事项
-
-1. **网络环境**：确保网络连接稳定，建议使用稳定的网络环境
-2. **存储空间**：大量PDF文件会占用较多存储空间，请确保有足够空间
-3. **访问频率**：程序内置延迟机制，避免对服务器造成过大压力
-4. **文件权限**：确保程序有创建目录和文件的权限
-
-## 更新日志
-
-- v1.0.0: 初始版本，支持基本下载功能
-- v1.1.0: 增加页数验证和重试机制
-- v1.2.0: 增加深度报告分类功能
-- v1.3.0: 优化文件命名和目录结构
-
-## 许可证
-
-本项目仅供学习和研究使用，请遵守相关网站的使用条款。 
