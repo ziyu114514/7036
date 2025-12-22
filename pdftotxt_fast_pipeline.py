@@ -233,6 +233,21 @@ def build_output_path(pdf_path: str, pdf_dir: str, txt_dir: str) -> str:
     txt_filename = os.path.splitext(os.path.basename(pdf_path))[0] + ".txt"
     return os.path.join(out_dir, txt_filename)
 
+# def batch_convert(pdf_dir: str, txt_dir: str):
+#     pdf_paths = []
+#     for root, _, files in os.walk(pdf_dir):
+#         for file in files:
+#             if file.lower().endswith(".pdf"):
+#                 pdf_paths.append(os.path.join(root, file))
+
+#     print(f"共找到 {len(pdf_paths)} 个 PDF，单进程顺序处理。")
+
+#     for pdf_path in pdf_paths:
+#         txt_path = build_output_path(pdf_path, pdf_dir, txt_dir)
+#         print(f"转换中: {pdf_path} → {txt_path}")
+#         text = pdf_to_text_fast(pdf_path)
+#         with open(txt_path, "w", encoding="utf-8") as f:
+#             f.write(text)
 def batch_convert(pdf_dir: str, txt_dir: str):
     pdf_paths = []
     for root, _, files in os.walk(pdf_dir):
@@ -244,10 +259,24 @@ def batch_convert(pdf_dir: str, txt_dir: str):
 
     for pdf_path in pdf_paths:
         txt_path = build_output_path(pdf_path, pdf_dir, txt_dir)
+
+        # -----------------------------
+        # 如果 txt 已存在 → 跳过
+        # -----------------------------
+        if os.path.exists(txt_path):
+            print(f"跳过（已存在）: {txt_path}")
+            continue
+
         print(f"转换中: {pdf_path} → {txt_path}")
         text = pdf_to_text_fast(pdf_path)
+
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(txt_path), exist_ok=True)
+
         with open(txt_path, "w", encoding="utf-8") as f:
             f.write(text)
+
+    print("全部处理完成！")
 
 if __name__ == "__main__":
     pdf_root = r"East_money_research_report_download\reports_pdf"

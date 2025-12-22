@@ -53,7 +53,15 @@ class EmbeddingClassifier:
             "投资评级体系与评级定义",
             "市场有风险，投资需谨慎",
             "免责条款",
-            "公司基本情况（最新）"
+            "公司基本情况（最新）",
+            "《【联讯电新公司点评】中环股",
+            "份(002129): 非公开发行助",
+            "投资评级的说明:",
+            "买入: 预期未来 6-12 个月内上涨幅度在 15%以上;",
+            "增持: 预期未来 6-12 个月内上涨幅度在 5%-15%;",
+            "中性: 预期未来 6-12 个月内变动幅度在 -5%-5%;",
+            "减持: 预期未来 6-12 个月内下跌幅度在 5%以上。"
+
         ]
 
 
@@ -74,9 +82,9 @@ class EmbeddingClassifier:
         # -------------------------
         # 1. 强规则：短句噪声优先
         # -------------------------
-        if length <= 6:
+        if length <= 20:
             if re.match(r"^[\d\.\-/%]+$", text) or \
-               re.search(r"(亿|万|元|%|同比|环比|YOY)", text):
+               re.search(r"(亿|万|元|%|同比|环比|YOY|《|》|【|】)", text):
                 return "噪声"
 
         # -------------------------
@@ -89,9 +97,9 @@ class EmbeddingClassifier:
         # -------------------------
         # 3. 短句惩罚（弱规则）
         # -------------------------
-        if length < 12:
+        if length < 20:
             # 如果短句包含明显正文词，则不惩罚
-            if not re.search(r"(公司|收入|净利润|增长|业务|产能)", text):
+            if not re.search(r"(收入|净利润|增长|业务|产能)", text):
                 neg_sim += 0.3  # 轻微惩罚
 
         # -------------------------
@@ -135,7 +143,8 @@ def recheck_with_context(lines, labels, clf, i):
 
     candidates = [
         line,
-        prev1 + " " + line + " " + next1,
+        prev1 + " " + line,
+        line + " " + next1
         # prev_pos + " " + line + " " + next_pos,
     ]
 
@@ -151,8 +160,8 @@ def recheck_with_context(lines, labels, clf, i):
 # ============================================================
 
 def main():
-    input_path = r"D:\MFIN\7036\reports_txt\TCL中环\20190401_诚通证券_TCL中环_中环股份年报点评：业绩符合预期，硅片龙头地位不断巩固.txt"
-    output_path = r"D:\MFIN\7036\reports_txt\TCL中环\20190401_诚通证券_TCL中环_中环股份年报点评：业绩符合预期，硅片龙头地位不断巩固_clean.txt"
+    input_path = r"D:\MFIN\7036\reports_txt\TCL中环\20190401_粤开证券_TCL中环_【联讯电新公司点评】：中环股份：业绩符合预期，产能顺利释放助公司成长.txt"
+    output_path = r"D:\MFIN\7036\reports_txt\TCL中环\20190401_粤开证券_TCL中环_【联讯电新公司点评】：中环股份：业绩符合预期，产能顺利释放助公司成长_clean.txt"
 
     print(f"读取文件: {input_path}")
     with open(input_path, "r", encoding="utf-8") as f:
